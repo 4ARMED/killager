@@ -5,12 +5,13 @@ import (
 	"os"
 
 	"github.com/4armed/killager/pkg/config"
-	log "github.com/sirupsen/logrus"
+	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 )
 
-// Configuration struct
+// things we need
 var c *config.Config
+var verboseLogging bool
 
 var rootCmd = &cobra.Command{
 	Version:       config.GitVersion,
@@ -30,15 +31,24 @@ func main() {
 func init() {
 	c = &config.Config{}
 
-	var verboseLogging bool
-
+	rootCmd.PersistentPreRunE = func(cmd *cobra.Command, args []string) error {
+		if err := initLogs(verboseLogging); err != nil {
+			return err
+		}
+		return nil
+	}
 	rootCmd.PersistentFlags().BoolVarP(&verboseLogging, "verbose", "v", false, "Output debug statements")
 
-	if verboseLogging {
-		log.SetLevel(log.DebugLevel)
+	rootCmd.AddCommand(Generate(c))
+}
+
+func initLogs(verbose bool) error {
+	if verbose {
+		logrus.SetLevel(logrus.DebugLevel)
 	} else {
-		log.SetLevel(log.InfoLevel)
+		logrus.SetLevel(logrus.InfoLevel)
 	}
 
-	rootCmd.AddCommand(Generate(c))
+	return nil
+
 }

@@ -3,6 +3,6 @@ package config
 type Config struct {
 	KubeConfigFile       string
 	KubeConfigOutputFile string
-	LogLevel             int
+	VerboseLogging       bool
 	Node                 string
 }
