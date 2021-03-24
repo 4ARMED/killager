@@ -12,6 +12,7 @@ import (
 // things we need
 var c *config.Config
 var verboseLogging bool
+var silentLogging bool
 
 var rootCmd = &cobra.Command{
 	Version:       config.GitVersion,
@@ -37,6 +38,7 @@ func init() {
 		}
 		return nil
 	}
+	rootCmd.PersistentFlags().BoolVarP(&silentLogging, "quiet", "q", false, "Suppress all log statements")
 	rootCmd.PersistentFlags().BoolVarP(&verboseLogging, "verbose", "v", false, "Output debug statements")
 
 	rootCmd.AddCommand(Generate(c))
@@ -45,6 +47,8 @@ func init() {
 func initLogs(verbose bool) error {
 	if verbose {
 		logrus.SetLevel(logrus.DebugLevel)
+	} else if silentLogging {
+		logrus.SetLevel(logrus.WarnLevel)
 	} else {
 		logrus.SetLevel(logrus.InfoLevel)
 	}

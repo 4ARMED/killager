@@ -5,4 +5,6 @@ type Config struct {
 	KubeConfigOutputFile string
 	VerboseLogging       bool
 	Node                 string
+	ServiceAccount       string
+	Namespace            string
 }

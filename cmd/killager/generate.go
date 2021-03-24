@@ -79,8 +79,16 @@ func Generate(c *config.Config) *cobra.Command {
 					return err
 				}
 
-				logrus.Debugf("secretName: %s/%s of type %s", namespace, name, secret.Type)
 				if secret.Type == "kubernetes.io/service-account-token" {
+					logrus.Debugf("secretName: %s/%s of type %s", namespace, name, secret.Type)
+					if c.ServiceAccount != "" {
+						if namespace != c.Namespace || secret.Annotations["kubernetes.io/service-account.name"] != c.ServiceAccount {
+							// Skip if a specific serviceAccount is requested and this isn't it
+							// This would be more efficient if we knew the secret name up front but
+							// sometimes we don't.
+							continue
+						}
+					}
 					logrus.Infof("creating kubeconfig for serviceAccount %s/%s", namespace, secret.Annotations["kubernetes.io/service-account.name"])
 					authInfoName := namespace + "-" + secret.Annotations["kubernetes.io/service-account.name"]
 
@@ -112,6 +120,8 @@ func Generate(c *config.Config) *cobra.Command {
 
 	cmd.Flags().StringVarP(&c.KubeConfigFile, "kubeconfig", "k", "kubeconfig.yaml", "The kubeconfig file to read cluster config from")
 	cmd.Flags().StringVarP(&c.KubeConfigOutputFile, "output-file", "o", "killager.yaml", "The kubeconfig file to write out to (will be overwritten)")
+	cmd.Flags().StringVarP(&c.Namespace, "namespace", "n", "", "The namespace to read secrets from")
+	cmd.Flags().StringVarP(&c.ServiceAccount, "service-account", "s", "", "The specific service-account to pillage, default is to get all")
 	cmd.Flags().StringVar(&c.Node, "node", "", "Node to process secrets for")
 	cmd.MarkFlagRequired("node")
 
