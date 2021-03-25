@@ -76,7 +76,9 @@ func Generate(c *config.Config) *cobra.Command {
 			for name, namespace := range secrets {
 				secret, err := clientset.CoreV1().Secrets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err != nil {
-					return err
+					// Just log the error but carry on as we may just not have access to the secret
+					logrus.Error(err)
+					continue
 				}
 
 				if secret.Type == "kubernetes.io/service-account-token" {
