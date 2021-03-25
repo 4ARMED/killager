@@ -48,7 +48,7 @@ func initLogs(verbose bool) error {
 	if verbose {
 		logrus.SetLevel(logrus.DebugLevel)
 	} else if silentLogging {
-		logrus.SetLevel(logrus.WarnLevel)
+		logrus.SetLevel(logrus.ErrorLevel)
 	} else {
 		logrus.SetLevel(logrus.InfoLevel)
 	}
