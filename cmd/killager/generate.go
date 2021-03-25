@@ -60,8 +60,8 @@ func Generate(c *config.Config) *cobra.Command {
 			}
 
 			for _, pod := range pods.Items {
-				// Skip if not our node
-				if pod.Spec.NodeName != c.Node {
+				// Skip if node set and this is not our node
+				if c.Node != "" && pod.Spec.NodeName != c.Node {
 					continue
 				}
 
@@ -77,7 +77,7 @@ func Generate(c *config.Config) *cobra.Command {
 				secret, err := clientset.CoreV1().Secrets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err != nil {
 					// Just log the error but carry on as we may just not have access to the secret
-					logrus.Error(err)
+					logrus.Warn(err)
 					continue
 				}
 
@@ -124,8 +124,7 @@ func Generate(c *config.Config) *cobra.Command {
 	cmd.Flags().StringVarP(&c.KubeConfigOutputFile, "output-file", "o", "killager.yaml", "The kubeconfig file to write out to (will be overwritten)")
 	cmd.Flags().StringVarP(&c.Namespace, "namespace", "n", "", "The namespace to read secrets from")
 	cmd.Flags().StringVarP(&c.ServiceAccount, "service-account", "s", "", "The specific service-account to pillage, default is to get all")
-	cmd.Flags().StringVar(&c.Node, "node", "", "Node to process secrets for")
-	cmd.MarkFlagRequired("node")
+	cmd.Flags().StringVar(&c.Node, "node", "", "Node to process secrets for. By default we'll try all secrets, if if they're not on our node.")
 
 	return cmd
 }
