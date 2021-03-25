@@ -5,7 +5,7 @@ import (
 	"os"
 
 	"github.com/4armed/killager/pkg/config"
-	"github.com/sirupsen/logrus"
+	"github.com/kris-nova/logger"
 	"github.com/spf13/cobra"
 )
 
@@ -46,13 +46,12 @@ func init() {
 
 func initLogs(verbose bool) error {
 	if verbose {
-		logrus.SetLevel(logrus.DebugLevel)
+		logger.BitwiseLevel = logger.LogDebug
 	} else if silentLogging {
-		logrus.SetLevel(logrus.ErrorLevel)
+		logger.BitwiseLevel = logger.LogCritical
 	} else {
-		logrus.SetLevel(logrus.InfoLevel)
+		logger.BitwiseLevel = logger.LogInfo
 	}
 
 	return nil
-
 }

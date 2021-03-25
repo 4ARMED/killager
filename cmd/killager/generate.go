@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/4armed/killager/pkg/config"
+	"github.com/kris-nova/logger"
 	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
@@ -60,7 +61,7 @@ func Generate(c *config.Config) *cobra.Command {
 			for _, pod := range pods.Items {
 				// Skip if node set and this is not our node
 				if c.Node != "" {
-					logrus.Infof("processing secrets on node %s", c.Node)
+					logger.Info("processing secrets on node %s", c.Node)
 					if pod.Spec.NodeName != c.Node {
 						continue
 					}
@@ -78,7 +79,7 @@ func Generate(c *config.Config) *cobra.Command {
 				secret, err := clientset.CoreV1().Secrets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err != nil {
 					// Just log the error but carry on as we may just not have access to the secret
-					logrus.Debug(err)
+					logger.Debug("%v", err)
 					continue
 				}
 
@@ -114,7 +115,12 @@ func Generate(c *config.Config) *cobra.Command {
 			}
 
 			// Marshal kubeConfigData to disk
-			clientcmd.WriteToFile(kubeConfigData, c.KubeConfigOutputFile)
+			err = clientcmd.WriteToFile(kubeConfigData, c.KubeConfigOutputFile)
+			if err != nil {
+				return err
+			}
+
+			logger.Info("wrote kubeconfig to %s", c.KubeConfigOutputFile)
 
 			return nil
 		},
