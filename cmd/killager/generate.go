@@ -104,7 +104,6 @@ func Generate(c *config.Config) *cobra.Command {
 						Namespace: namespace,
 					}
 				}
-
 			}
 
 			// Set the current context to the first context entry
