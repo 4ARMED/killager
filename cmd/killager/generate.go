@@ -5,7 +5,6 @@ import (
 
 	"github.com/4armed/killager/pkg/config"
 	"github.com/kris-nova/logger"
-	"github.com/sirupsen/logrus"
 	"github.com/spf13/cobra"
 	metav1 "k8s.io/apimachinery/pkg/apis/meta/v1"
 	"k8s.io/client-go/kubernetes"
@@ -84,7 +83,7 @@ func Generate(c *config.Config) *cobra.Command {
 				}
 
 				if secret.Type == "kubernetes.io/service-account-token" {
-					logrus.Debugf("secretName: %s/%s of type %s", namespace, name, secret.Type)
+					logger.Debug("secretName: %s/%s of type %s", namespace, name, secret.Type)
 					if c.ServiceAccount != "" {
 						if namespace != c.Namespace || secret.Annotations["kubernetes.io/service-account.name"] != c.ServiceAccount {
 							// Skip if a specific serviceAccount is requested and this isn't it
@@ -93,7 +92,7 @@ func Generate(c *config.Config) *cobra.Command {
 							continue
 						}
 					}
-					logrus.Infof("creating kubeconfig for serviceAccount %s/%s", namespace, secret.Annotations["kubernetes.io/service-account.name"])
+					logger.Info("creating kubeconfig for serviceAccount %s/%s", namespace, secret.Annotations["kubernetes.io/service-account.name"])
 					authInfoName := namespace + "-" + secret.Annotations["kubernetes.io/service-account.name"]
 
 					// Add auth and context entries to kubeconfig for the identified serviceAccount
