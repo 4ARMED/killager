@@ -23,8 +23,6 @@ func Generate(c *config.Config) *cobra.Command {
 		TraverseChildren: true,
 		Short:            "Generate kubeconfig file with serviceAccount tokens found on node",
 		RunE: func(cmd *cobra.Command, args []string) error {
-			logrus.Infof("processing secrets on node %s", c.Node)
-
 			// Parse the kubeconfig file specified
 			kc, err := clientcmd.BuildConfigFromFlags("", c.KubeConfigFile)
 			if err != nil {
@@ -61,8 +59,11 @@ func Generate(c *config.Config) *cobra.Command {
 
 			for _, pod := range pods.Items {
 				// Skip if node set and this is not our node
-				if c.Node != "" && pod.Spec.NodeName != c.Node {
-					continue
+				if c.Node != "" {
+					logrus.Infof("processing secrets on node %s", c.Node)
+					if pod.Spec.NodeName != c.Node {
+						continue
+					}
 				}
 
 				// Find the secret volumes
@@ -77,7 +78,7 @@ func Generate(c *config.Config) *cobra.Command {
 				secret, err := clientset.CoreV1().Secrets(namespace).Get(context.TODO(), name, metav1.GetOptions{})
 				if err != nil {
 					// Just log the error but carry on as we may just not have access to the secret
-					logrus.Warn(err)
+					logrus.Debug(err)
 					continue
 				}
 
