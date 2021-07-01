@@ -45,6 +45,7 @@ func Generate(c *config.Config) *cobra.Command {
 					Server:                   kc.Host,
 					InsecureSkipTLSVerify:    kc.Insecure,
 					CertificateAuthorityData: kc.CAData,
+					CertificateAuthority:     kc.CAFile,
 				}},
 				AuthInfos:      map[string]*clientcmdapi.AuthInfo{},
 				Contexts:       map[string]*clientcmdapi.Context{},
@@ -129,7 +130,7 @@ func Generate(c *config.Config) *cobra.Command {
 	cmd.Flags().StringVarP(&c.KubeConfigOutputFile, "output-file", "o", "killager.yaml", "The kubeconfig file to write out to (will be overwritten)")
 	cmd.Flags().StringVarP(&c.Namespace, "namespace", "n", "", "The namespace to read secrets from")
 	cmd.Flags().StringVarP(&c.ServiceAccount, "service-account", "s", "", "The specific service-account to pillage, default is to get all")
-	cmd.Flags().StringVar(&c.Node, "node", "", "Node to process secrets for. By default we'll try all secrets, if if they're not on our node.")
+	cmd.Flags().StringVar(&c.Node, "node", "", "Node to process secrets for. By default we'll try all secrets, even if they're not on our node.")
 
 	return cmd
 }
